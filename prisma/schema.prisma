@@ -1,0 +1,74 @@
+// Prisma schema for Developer Portfolio CMS Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(EDITOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  posts    Post[]
+  projects Project[]
+}
+
+model Post {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  summary     String
+  content     String        @db.Text
+  status      ContentStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  summary     String
+  content     String        @db.Text
+  status      ContentStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  repoUrl     String?
+  liveUrl     String?
+  tags        String[]
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  referrer  String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}

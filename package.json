@@ -1,0 +1,55 @@
+{
+  "name": "developer-portfolio-cms",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "prisma": "prisma",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset",
+    "docker:build": "docker build -t portfolio-cms:latest .",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f app",
+    "setup": "npm install && npm run db:push && npm run db:seed"
+  },
+  "dependencies": {
+    "@mdx-js/react": "^3.1.1",
+    "@next/mdx": "^16.1.7",
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.5.0",
+    "bcryptjs": "^3.0.3",
+    "date-fns": "^4.1.0",
+    "gray-matter": "^4.0.3",
+    "jose": "^6.2.1",
+    "next": "16.1.7",
+    "next-mdx-remote": "^6.0.0",
+    "pg": "^8.20.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.7",
+    "prisma": "^7.5.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}

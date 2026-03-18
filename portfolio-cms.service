@@ -1,0 +1,41 @@
+[Unit]
+Description=Developer Portfolio CMS Platform
+Documentation=https://github.com/your-username/portfolio-cms
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=exec
+Restart=on-failure
+RestartSec=5
+
+# Run as non-root
+User=portfolio
+Group=portfolio
+
+# Service environment
+EnvironmentFile=/etc/portfolio/.env
+WorkingDirectory=/opt/portfolio
+
+# Start command
+ExecStart=/usr/bin/docker-compose -f docker-compose.prod.yml up
+
+# Stop command
+ExecStop=/usr/bin/docker-compose -f docker-compose.prod.yml down
+
+# Resource limits
+MemoryLimit=2G
+CPUQuota=400%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+
+# Security
+PrivateTmp=yes
+NoNewPrivileges=yes
+ReadOnlyPaths=/
+ReadWritePaths=/opt/portfolio /var/lib/docker /var/lib/postgresql
+
+[Install]
+WantedBy=multi-user.target

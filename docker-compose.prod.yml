@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  app:
+    image: portfolio-cms:latest
+    container_name: portfolio_app_prod
+    restart: always
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/${POSTGRES_DB}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ENABLE_ANALYTICS: "true"
+    ports:
+      - "3000:3000"
+    networks:
+      - portfolio_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    volumes:
+      - app_logs:/app/.next
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgresql:
+    image: postgres:16-alpine
+    container_name: portfolio_db_prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backup:/backup
+    ports:
+      - "5432:5432"
+    networks:
+      - portfolio_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  backup:
+    image: postgres:16-alpine
+    container_name: portfolio_backup
+    restart: daily
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backup:/backup
+    entrypoint: |
+      sh -c 'while true; do
+        pg_dump -h postgresql -U ${POSTGRES_USER} -d ${POSTGRES_DB} | gzip > /backup/backup_$$(date +%Y%m%d_%H%M%S).sql.gz
+        find /backup -name "backup_*.sql.gz" -mtime +30 -delete
+        sleep 86400
+      done'
+    depends_on:
+      - postgresql
+    networks:
+      - portfolio_network
+
+volumes:
+  postgres_data:
+    driver: local
+  app_logs:
+    driver: local
+
+networks:
+  portfolio_network:
+    driver: bridge
