@@ -75,10 +75,28 @@ export async function getSession(): Promise<SessionUser | null> {
 }
 
 export async function getSessionFromRequest(request: Request): Promise<SessionUser | null> {
-  const token = request.headers.get("Authorization")?.replace("Bearer ", "") ||
-               request.headers.get("Cookie")?.split("session=")[1]?.split(";")[0];
-  if (!token) return null;
-  return validateSessionToken(token);
+  try {
+    // Try to get token from Authorization header first
+    let token = request.headers.get("Authorization")?.replace("Bearer ", "");
+    
+    // If not found, try to get from cookies header
+    if (!token) {
+      const cookieHeader = request.headers.get("Cookie");
+      if (cookieHeader) {
+        const cookies = cookieHeader.split(";").map((c) => c.trim());
+        const sessionCookie = cookies.find((c) => c.startsWith("session="));
+        if (sessionCookie) {
+          token = sessionCookie.replace("session=", "");
+        }
+      }
+    }
+    
+    if (!token) return null;
+    return validateSessionToken(token);
+  } catch (error) {
+    console.error("Error getting session from request:", error);
+    return null;
+  }
 }
 
 export async function clearSession(): Promise<void> {

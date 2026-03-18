@@ -27,22 +27,29 @@ export default function PostForm() {
     setLoading(true);
     setError(null);
 
-    const response = await fetch("/api/posts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, slug, summary, content, status }),
-    });
+    try {
+      const response = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ title, slug, summary, content, status }),
+      });
 
-    setLoading(false);
+      setLoading(false);
 
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      setError(data.error ?? "Failed to create post");
-      return;
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setError(data.error ?? "Failed to create post");
+        return;
+      }
+
+      router.push("/dashboard/posts");
+      router.refresh();
+    } catch (err) {
+      setLoading(false);
+      setError("An error occurred while creating the post");
+      console.error(err);
     }
-
-    router.push("/dashboard/posts");
-    router.refresh();
   }
 
   return (

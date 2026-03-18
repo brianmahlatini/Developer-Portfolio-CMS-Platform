@@ -1,4 +1,5 @@
 import { getSessionFromRequest, SessionUser } from "./auth";
+import { AuthorizationError } from "./errors";
 
 export type Role = SessionUser["role"];
 
@@ -7,11 +8,11 @@ export async function requireRole(
   allowed: Role[]
 ): Promise<SessionUser> {
   const session = await getSessionFromRequest(request);
-  if (!session || !allowed.includes(session.role)) {
-    throw new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
+  if (!session) {
+    throw new AuthorizationError("Authentication required");
+  }
+  if (!allowed.includes(session.role)) {
+    throw new AuthorizationError("Insufficient permissions for this action");
   }
   return session;
 }

@@ -44,7 +44,7 @@ export async function PATCH(
 ) {
   try {
     const session = await requireRole(request, ["ADMIN", "EDITOR"]);
-    if (session instanceof NextResponse) return session;
+
 
     const { id } = await params;
 
@@ -85,7 +85,6 @@ export async function DELETE(
 ) {
   try {
     const session = await requireRole(request, ["ADMIN", "EDITOR"]);
-    if (session instanceof NextResponse) return session;
 
     const { id } = await params;
 

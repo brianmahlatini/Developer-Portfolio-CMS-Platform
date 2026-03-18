@@ -10,7 +10,6 @@ import { createResponse, createErrorResponse } from "@/lib/errors";
 export async function GET(request: Request) {
   try {
     const session = await requireRole(request, ["ADMIN", "EDITOR"]);
-    if (session instanceof NextResponse) return session;
 
     const url = new URL(request.url);
     const days = Math.min(365, parseInt(url.searchParams.get("days") || "7"));

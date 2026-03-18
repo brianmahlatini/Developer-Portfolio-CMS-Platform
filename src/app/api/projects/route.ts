@@ -16,7 +16,6 @@ export async function POST(request: Request) {
     }
 
     const session = await requireRole(request, ["ADMIN", "EDITOR"]);
-    if (session instanceof NextResponse) return session;
 
     const data = await parseBody(request, projectSchema);
 

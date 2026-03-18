@@ -30,31 +30,38 @@ export default function ProjectForm() {
     setLoading(true);
     setError(null);
 
-    const response = await fetch("/api/projects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        slug,
-        summary,
-        content,
-        repoUrl,
-        liveUrl,
-        tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
-        status,
-      }),
-    });
+    try {
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          title,
+          slug,
+          summary,
+          content,
+          repoUrl: repoUrl || undefined,
+          liveUrl: liveUrl || undefined,
+          tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
+          status,
+        }),
+      });
 
-    setLoading(false);
+      setLoading(false);
 
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      setError(data.error ?? "Failed to create project");
-      return;
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setError(data.error ?? "Failed to create project");
+        return;
+      }
+
+      router.push("/dashboard/projects");
+      router.refresh();
+    } catch (err) {
+      setLoading(false);
+      setError("An error occurred while creating the project");
+      console.error(err);
     }
-
-    router.push("/dashboard/projects");
-    router.refresh();
   }
 
   return (
