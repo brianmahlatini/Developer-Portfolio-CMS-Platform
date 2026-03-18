@@ -26,5 +26,5 @@ export const projectSchema = z.object({
 
 export const analyticsSchema = z.object({
   path: z.string().min(1),
-  referrer: z.string().optional(),
+  referrer: z.string().optional().nullable(),
 });

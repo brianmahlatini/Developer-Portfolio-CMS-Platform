@@ -12,8 +12,11 @@ export default function AnalyticsTracker() {
     fetch("/api/analytics/track", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ path: url, referrer: document.referrer }),
-    }).catch(() => undefined);
+      credentials: "include",
+      body: JSON.stringify({ path: url, referrer: document.referrer || undefined }),
+    }).catch(() => {
+      // Silently fail if analytics tracking fails
+    });
   }, [pathname, searchParams]);
 
   return null;

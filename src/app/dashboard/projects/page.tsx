@@ -37,7 +37,7 @@ export default async function ProjectsDashboardPage() {
               <div>
                 <p className="font-semibold text-slate-900">{project.title}</p>
                 <p className="text-xs uppercase tracking-widest text-slate-500">
-                  {project.status} · {formatDate(project.createdAt)}
+                  {project.status} - {formatDate(project.createdAt)}
                 </p>
               </div>
               <div className="flex items-center gap-4">
